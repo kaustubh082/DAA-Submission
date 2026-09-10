@@ -1,0 +1,14 @@
+Robot Navigation in Smart Factory
+A smart manufacturing unit uses autonomous robots to transport materials between
+stations. The factory layout is represented as a graph:
+Nodes: Junctions in the factory floor.
+Edges: Paths between junctions, weighted by travel time (considering obstacles
+and robot traffic).
+A robot needs to move from Source (charging station) to Destination (assembly
+point) in the shortest possible time. Obstacles and temporary congestion may change
+path weights dynamically.
+As a robotics engineer, you are assigned to:
+1. Implement Dijkstra’s algorithm to find shortest travel path for robots.
+2. Update paths dynamically if obstacles appear or paths become congested.
+3. Optimize the system for large factories with hundreds or thousands of robots.
+4. Provide a graphical visualization of the robot’s optimal path.
