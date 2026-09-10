@@ -1,0 +1,128 @@
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+#define MAX 100
+#define INF 9999
+
+void dijkstra(int graph[MAX][MAX], int n, int source, ofstream &fout) {
+
+    int dist[MAX];
+    bool visited[MAX];
+    int parent[MAX];
+
+    for (int i = 0; i < n; i++) {
+        dist[i] = INF;
+        visited[i] = false;
+        parent[i] = -1;
+    }
+
+    dist[source] = 0;
+
+    for (int count = 0; count < n - 1; count++) {
+
+        int u = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (!visited[i] && (u == -1 || dist[i] < dist[u])) {
+                u = i;
+            }
+        }
+
+        if (u == -1 || dist[u] == INF)
+            break;
+
+        visited[u] = true;
+
+        for (int v = 0; v < n; v++) {
+
+            if (!visited[v] &&
+                graph[u][v] != 0 &&
+                dist[u] + graph[u][v] < dist[v]) {
+
+                dist[v] = dist[u] + graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+
+    fout << "Campus Wi-Fi Network Optimization\n";
+    fout << "Source Router: " << source << "\n\n";
+
+    fout << "Router\tMinimum Latency\tPath\n";
+
+    for (int i = 0; i < n; i++) {
+
+        fout << i << "\t";
+
+        if (dist[i] == INF) {
+            fout << "No Path\t\tNo Path\n";
+            continue;
+        }
+
+        fout << dist[i] << " ms\t\t";
+
+        int path[MAX];
+        int count = 0;
+        int current = i;
+
+        while (current != -1) {
+            path[count++] = current;
+            current = parent[current];
+        }
+
+        for (int j = count - 1; j >= 0; j--) {
+            fout << path[j];
+
+            if (j != 0)
+                fout << " -> ";
+        }
+
+        fout << "\n";
+    }
+}
+
+int main() {
+
+    ifstream fin("input.txt");
+    ofstream fout("output.txt");
+
+    if (!fin) {
+        cout << "Error: input.txt not found.\n";
+        return 1;
+    }
+
+    if (!fout) {
+        cout << "Error: output.txt could not be created.\n";
+        return 1;
+    }
+
+    int n, e;
+
+    fin >> n >> e;
+
+    int graph[MAX][MAX] = {0};
+
+    for (int i = 0; i < e; i++) {
+
+        int u, v, w;
+
+        fin >> u >> v >> w;
+
+        graph[u][v] = w;
+        graph[v][u] = w;
+    }
+
+    int source;
+    fin >> source;
+
+    dijkstra(graph, n, source, fout);
+
+    cout << "Dijkstra algorithm executed successfully.\n";
+    cout << "Minimum-latency routes have been written to output.txt\n";
+
+    fin.close();
+    fout.close();
+
+    return 0;
+}
