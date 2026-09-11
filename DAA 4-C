@@ -1,14 +1,115 @@
-Robot Navigation in Smart Factory
-A smart manufacturing unit uses autonomous robots to transport materials between
-stations. The factory layout is represented as a graph:
-Nodes: Junctions in the factory floor.
-Edges: Paths between junctions, weighted by travel time (considering obstacles
-and robot traffic).
-A robot needs to move from Source (charging station) to Destination (assembly
-point) in the shortest possible time. Obstacles and temporary congestion may change
-path weights dynamically.
-As a robotics engineer, you are assigned to:
-1. Implement Dijkstra’s algorithm to find shortest travel path for robots.
-2. Update paths dynamically if obstacles appear or paths become congested.
-3. Optimize the system for large factories with hundreds or thousands of robots.
-4. Provide a graphical visualization of the robot’s optimal path.
+#include <iostream>
+#include <fstream>
+using namespace std;
+
+#define MAX 100
+#define INF 9999
+
+void dijkstra(int graph[MAX][MAX], int n, int source, int destination, ofstream &fout)
+{
+    int dist[MAX];
+    bool visited[MAX];
+    int parent[MAX];
+
+    for (int i = 0; i < n; i++)
+    {
+        dist[i] = INF;
+        visited[i] = false;
+        parent[i] = -1;
+    }
+
+    dist[source] = 0;
+
+    for (int count = 0; count < n - 1; count++)
+    {
+        int u = -1;
+
+        for (int i = 0; i < n; i++)
+        {
+            if (!visited[i] && (u == -1 || dist[i] < dist[u]))
+                u = i;
+        }
+
+        if (u == -1 || dist[u] == INF)
+            break;
+
+        visited[u] = true;
+
+        for (int v = 0; v < n; v++)
+        {
+            if (!visited[v] && graph[u][v] != 0 &&
+                dist[u] + graph[u][v] < dist[v])
+            {
+                dist[v] = dist[u] + graph[u][v];
+                parent[v] = u;
+            }
+        }
+    }
+
+    fout << "Robot Navigation in Smart Factory\n";
+    fout << "Source: Charging Station " << source << "\n";
+    fout << "Destination: Assembly Point " << destination << "\n\n";
+
+    fout << "Shortest Travel Time: " << dist[destination] << " minutes\n";
+
+    int path[MAX];
+    int count = 0;
+    int current = destination;
+
+    while (current != -1)
+    {
+        path[count++] = current;
+        current = parent[current];
+    }
+
+    fout << "Optimal Robot Path: ";
+
+    for (int i = count - 1; i >= 0; i--)
+    {
+        fout << path[i];
+
+        if (i != 0)
+            fout << " -> ";
+    }
+
+    fout << "\n";
+}
+
+int main()
+{
+    ifstream fin("input.txt");
+    ofstream fout("output.txt");
+
+    if (!fin)
+    {
+        cout << "input.txt not found";
+        return 1;
+    }
+
+    int n, e;
+    fin >> n >> e;
+
+    int graph[MAX][MAX] = {0};
+
+    for (int i = 0; i < e; i++)
+    {
+        int u, v, w;
+        fin >> u >> v >> w;
+
+        graph[u][v] = w;
+        graph[v][u] = w;
+    }
+
+    int source, destination;
+    fin >> source >> destination;
+
+    dijkstra(graph, n, source, destination, fout);
+
+    cout << "Shortest path calculated successfully.\n";
+    cout << "Check output.txt for the result.\n";
+
+    fin.close();
+    fout.close();
+
+    return 0;
+}
